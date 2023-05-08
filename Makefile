@@ -10,8 +10,7 @@ install-tvOS:
 	true
 
 install-lint:
-	brew remove swiftlint --force || true
-	brew install --force-bottle https://raw.githubusercontent.com/Homebrew/homebrew-core/a97c85994a3f714355a20511b4df3a546ae809cf/Formula/swiftlint.rb
+	brew install swiftlint || true
 
 # Run Tasks
 
@@ -40,6 +39,6 @@ test-tvOS:
 		xcodebuild \
 		-project Kronos.xcodeproj \
 		-scheme Kronos \
-		-destination "platform=tvOS Simulator,name=Apple TV,OS=13.3" \
+		-destination "platform=tvOS Simulator,name=Apple TV" \
 		test \
 		| xcpretty -ct

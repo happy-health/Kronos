@@ -2,6 +2,7 @@ import Foundation
 
 /// Delta between system and NTP time
 private let kEpochDelta = 2208988800.0
+private let kEpochRolloverDelta = pow(2.0, 32.0) - kEpochDelta
 
 /// This is the maximum that we'll tolerate for the client's time vs self.delay
 private let kMaximumDelayDifference = 0.1
@@ -30,7 +31,7 @@ struct NTPPacket {
     /// The current connection mode.
     let mode: Mode
 
-    /// Mode representing the statrum level of the local clock.
+    /// Mode representing the stratum level of the local clock.
     let stratum: Stratum
 
     /// Indicates the maximum interval between successive messages, in seconds to the nearest power of two.
@@ -150,9 +151,9 @@ struct NTPPacket {
     // MARK: - Private helpers
 
     private func dateToNTPFormat(_ time: TimeInterval) -> UInt64 {
-        let integer = UInt32(time + kEpochDelta)
+        let integer = UInt64(time + kEpochDelta) & 0xffffffff
         let decimal = modf(time).1 * 4294967296.0 // 2 ^ 32
-        return UInt64(integer) << 32 | UInt64(decimal)
+        return integer << 32 | UInt64(decimal)
     }
 
     private func intervalToNTPFormat(_ time: TimeInterval) -> UInt32 {
@@ -162,9 +163,11 @@ struct NTPPacket {
     }
 
     private static func dateFromNTPFormat(_ time: UInt64) -> TimeInterval {
+        let needsRollOver = time & 0x8000000000000000 == 0
+        let delta = needsRollOver ? kEpochRolloverDelta : -kEpochDelta
         let integer = Double(time >> 32)
         let decimal = Double(time & 0xffffffff) / 4294967296.0
-        return integer - kEpochDelta + decimal
+        return integer + delta + decimal
     }
 
     private static func intervalFromNTPFormat(_ time: UInt32) -> TimeInterval {

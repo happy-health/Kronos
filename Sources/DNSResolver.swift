@@ -19,7 +19,7 @@ final class DNSResolver {
     static func resolve(host: String, timeout: TimeInterval = kDefaultTimeout,
                         completion: @escaping ([InternetAddress]) -> Void)
     {
-        let callback: CFHostClientCallBack = { host, hostinfo, error, info in
+        let callback: CFHostClientCallBack = { host, _, _, info in
             guard let info = info else {
                 return
             }
@@ -36,13 +36,8 @@ final class DNSResolver {
             }
 
             let IPs = (addresses.takeUnretainedValue() as NSArray)
-                .compactMap { $0 as? Data }
-                .compactMap { data -> InternetAddress? in
-                    return data.withUnsafeBytes { rawPointer in
-                        let pointer = rawPointer.bindMemory(to: sockaddr_storage.self).baseAddress
-                        return InternetAddress(storage: pointer!)
-                    }
-                }
+                .compactMap { $0 as? NSData }
+                .compactMap(InternetAddress.init)
 
             resolver.completion?(IPs)
             retainedSelf.release()

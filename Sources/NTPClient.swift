@@ -67,7 +67,7 @@ final class NTPClient {
         }
     }
 
-    /// Query the given ntp server for the time exchange.
+    /// Query the given NTP server for the time exchange.
     ///
     /// - parameter ip:              Server socket address.
     /// - parameter port:            Server NTP port (default 123).
@@ -149,7 +149,7 @@ final class NTPClient {
     {
         signal(SIGPIPE, SIG_IGN)
 
-        let callback: CFSocketCallBack = { socket, callbackType, address, data, info in
+        let callback: CFSocketCallBack = { socket, callbackType, _, data, info in
             if callbackType == .writeCallBack {
                 var packet = NTPPacket()
                 let PDU = packet.prepareToSend() as CFData

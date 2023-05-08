@@ -26,6 +26,10 @@ xcuserdata/
 *.BASE
 *.LOCAL
 *.BACKUP
+run-tests
+Packages/
+Icon
+bazel-*
 
 ## Obj-C/Swift specific
 *.hmap
